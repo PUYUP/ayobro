@@ -24,4 +24,10 @@ class WP_User_Extend extends WP_User {
 		return $user;
 	}
 
+	public function jwt_auth_token_before_dispatch_extend( $data, $user ) {
+		$data['id'] = $user->ID;
+		
+		return $data;
+	}
+
 }

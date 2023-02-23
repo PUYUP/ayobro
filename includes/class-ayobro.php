@@ -86,6 +86,7 @@ class Ayobro {
 		$this->rest_extend();
 		$this->user_rest();
 		$this->user_extend();
+		$this->wc_extend();
 	}
 
 	/**
@@ -134,6 +135,11 @@ class Ayobro {
 		 */
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-ayobro-user.php';
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-ayobro-user-rest.php';
+		
+		/**
+		 * Extending WooCommerce
+		 */
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-ayobro-wc.php';
 
 		/**
 		 * The class responsible for defining all actions that occur in the admin area.
@@ -216,6 +222,7 @@ class Ayobro {
 		$user_controller = new \WP_User_Extend();
 		
 		$this->loader->add_filter( 'authenticate', $user_controller, 'authenticate_extend', 99, 3 );
+		$this->loader->add_filter( 'jwt_auth_token_before_dispatch', $user_controller, 'jwt_auth_token_before_dispatch_extend', 10, 2 );
 	}
 
 	/**
@@ -225,6 +232,26 @@ class Ayobro {
 		$rest_controller = new \Ayobro_REST_Server();
 		
 		$this->loader->add_filter( 'rest_pre_echo_response', $rest_controller, 'rest_pre_echo_response_handler', 99, 3 );
+	}
+
+	/**
+	 * Run WooCommerce extending
+	 */
+	public function wc_extend() {
+		$wc_controller = new \Ayobro_WC();
+		
+		$this->loader->add_action( 'woocommerce_loaded', $this, 'wc_loaded', 99 );
+
+		$this->loader->add_filter( 'woocommerce_checkout_fields', $wc_controller, 'woocommerce_checkout_fields_extend', 10, 1 );
+		$this->loader->add_filter( 'woocommerce_default_address_fields', $wc_controller, 'woocommerce_default_address_fields_extend', 10, 1 );
+		$this->loader->add_filter( 'woocommerce_rest_api_get_rest_namespaces', $wc_controller, 'woocommerce_rest_api_get_rest_namespaces_extend', 99, 1 );
+		$this->loader->add_filter( 'woocommerce_rest_prepare_shop_order_object', $wc_controller, 'woocommerce_rest_prepare_shop_order_object', 10, 3 );
+	}
+
+	public function wc_loaded() {
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-ayobro-wc-rest-order.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-ayobro-wc-order.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-ayobro-wc-data-store.php';
 	}
 
 	/**
