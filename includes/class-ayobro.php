@@ -241,17 +241,20 @@ class Ayobro {
 		$wc_controller = new \Ayobro_WC();
 		
 		$this->loader->add_action( 'woocommerce_loaded', $this, 'wc_loaded', 99 );
-
+		$this->loader->add_action( 'init', $wc_controller, 'shop_order_post_statuses_extend', 11 );
+		
+		$this->loader->add_filter( 'wc_order_statuses', $wc_controller, 'wc_order_statuses_extend', 10, 1 );
 		$this->loader->add_filter( 'woocommerce_checkout_fields', $wc_controller, 'woocommerce_checkout_fields_extend', 10, 1 );
 		$this->loader->add_filter( 'woocommerce_default_address_fields', $wc_controller, 'woocommerce_default_address_fields_extend', 10, 1 );
 		$this->loader->add_filter( 'woocommerce_rest_api_get_rest_namespaces', $wc_controller, 'woocommerce_rest_api_get_rest_namespaces_extend', 99, 1 );
 		$this->loader->add_filter( 'woocommerce_rest_prepare_shop_order_object', $wc_controller, 'woocommerce_rest_prepare_shop_order_object', 10, 3 );
+		$this->loader->add_filter( 'woocommerce_rest_pre_insert_shop_order_object', $wc_controller, 'woocommerce_rest_pre_insert_shop_order_object', 10, 3 );
+		$this->loader->add_filter( 'bulk_actions-edit-shop_order', $wc_controller, 'custom_dropdown_bulk_actions_shop_order', 20, 1 );
+		$this->loader->add_filter( 'woocommerce_order_get_items', $wc_controller, 'woocommerce_order_get_items_extend', 10, 3 );
 	}
 
 	public function wc_loaded() {
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-ayobro-wc-rest-order.php';
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-ayobro-wc-order.php';
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-ayobro-wc-data-store.php';
 	}
 
 	/**
